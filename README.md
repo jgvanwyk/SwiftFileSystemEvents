@@ -9,7 +9,7 @@ A thin Swift wrapper for a subset of the File System Events API.
 
 The 
 [documentation](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents/master/documentation)
-for `SwiftFileSystemEvents` is available in DocC format.
+for SwiftFileSystemEvents is available in DocC format.
 
 ## Overview
 
