@@ -76,7 +76,7 @@ public final class FileSystemEventStream {
     }
     
     private static let callback: FSEventStreamCallback = { _, info, numEvents, eventPaths, eventFlags, eventIDs in
-        guard let info else { return }
+        guard let info = info else { return }
         let eventPaths = eventPaths.assumingMemoryBound(to: UnsafeMutablePointer<CChar>.self)
         let stream = Unmanaged<FileSystemEventStream>.fromOpaque(info).takeUnretainedValue()
         for index in 0..<numEvents {

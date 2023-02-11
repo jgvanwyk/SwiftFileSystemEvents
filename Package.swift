@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftFileSystemEvents",
+    platforms: [.macOS(.v10_13)],
     products: [.library(name: "SwiftFileSystemEvents", targets: ["SwiftFileSystemEvents"])],
     targets: [
         .target(name: "SwiftFileSystemEvents"),
