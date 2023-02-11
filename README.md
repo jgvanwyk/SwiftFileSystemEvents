@@ -3,7 +3,7 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fjgvanwyk%2FSwiftFileSystemEvents%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fjgvanwyk%2FSwiftFileSystemEvents%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents)
 [![GitHub](https://img.shields.io/github/license/jgvanwyk/SwiftFileSystemEvents)](https://opensource.org/licenses/MIT)
-
+[![](https://img.shields.io/badge/Documentation-DocC-blue)](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents/master/documentation)
 
 A thin Swift wrapper for a subset of the File System Events API.
 
@@ -32,6 +32,10 @@ skim the “Using the File System Events API section”. The programming guide c
 be found by going to
 [Appleʼs Documentation Archive](https://developer.apple.com/library/archive/navigation/)
 and searching for “File System Events Programming Guide”.
+
+The 
+[documentation](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents/master/documentation)
+for `SwiftFileSystemEvents` is available in DocC format.
 
 ## Usage
 
