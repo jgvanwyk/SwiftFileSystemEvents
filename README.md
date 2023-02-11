@@ -7,6 +7,10 @@
 
 A thin Swift wrapper for a subset of the File System Events API.
 
+The 
+[documentation](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents/master/documentation)
+for `SwiftFileSystemEvents` is available in DocC format.
+
 ## Overview
 
 The File System Events API provides the ability to receive notifications of file
@@ -32,10 +36,6 @@ skim the “Using the File System Events API section”. The programming guide c
 be found by going to
 [Appleʼs Documentation Archive](https://developer.apple.com/library/archive/navigation/)
 and searching for “File System Events Programming Guide”.
-
-The 
-[documentation](https://swiftpackageindex.com/jgvanwyk/SwiftFileSystemEvents/master/documentation)
-for `SwiftFileSystemEvents` is available in DocC format.
 
 ## Usage
 
