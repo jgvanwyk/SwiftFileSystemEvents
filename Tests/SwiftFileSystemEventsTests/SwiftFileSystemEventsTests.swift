@@ -13,6 +13,16 @@ import XCTest
 
 
 final class SwiftFileSystemEventsTests: XCTestCase {
+    
+    @available(macOS 13.0, *)
+    func test() {
+        let stream = FileSystemEventStream(directoriesToWatch: [.downloadsDirectory], handler: { print($0) })
+        stream.setDispatchQueue(.global(qos: .background))
+        try! stream.start()
+        Thread.sleep(forTimeInterval: 30)
+        stream.stop()
+        stream.invalidate()
+    }
 
     func testFileSystemEventStreamFlagsDescription() {
         let flags0: FileSystemEventStream.Flags = []
