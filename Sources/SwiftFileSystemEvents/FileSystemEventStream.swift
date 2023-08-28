@@ -81,7 +81,7 @@ public final class FileSystemEventStream {
         let eventPaths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as! [CFString]
         let stream = Unmanaged<FileSystemEventStream>.fromOpaque(info).takeUnretainedValue()
         for index in 0..<numEvents {
-            let url = CFURLCreateWithString(nil, eventPaths[index], nil) as URL
+            let url = URL(fileURLWithPath: eventPaths[index] as String)
             let flags = FileSystemEvent.Flags(rawValue: eventFlags[index])
             let id = FileSystemEvent.ID(rawValue: eventIDs[index])
             let event = FileSystemEvent(url: url, id: id, flags: flags)
