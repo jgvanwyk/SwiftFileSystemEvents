@@ -49,11 +49,19 @@ extension FileSystemEventStream.Flags: CustomStringConvertible, CustomDebugStrin
 extension FileSystemEvent: CustomStringConvertible, CustomDebugStringConvertible {
     
     public var description: String {
-        return "FileSystemEvent(path: \(url.path), flags: \(flags.description), id: \(id.description))"
+        if #available(macOS 13.0, *) {
+            return "FileSystemEvent(path: \(url.path(percentEncoded: false)), flags: \(flags.description), id: \(id.description))"
+        } else {
+            return "FileSystemEvent(path: \(url.path), flags: \(flags.description), id: \(id.description))"
+        }
     }
     
     public var debugDescription: String {
-        return "FileSystemEvent(path: \(url.path), flags: Flags(rawValue: \(flags.rawValue)), id: ID(rawValue: \(id.rawValue)))"
+        if #available(macOS 13.0, *) {
+            return "FileSystemEvent(path: \(url.path(percentEncoded: false)), flags: Flags(rawValue: \(flags.rawValue)), id: ID(rawValue: \(id.rawValue)))"
+        } else {
+            return "FileSystemEvent(path: \(url.path), flags: Flags(rawValue: \(flags.rawValue)), id: ID(rawValue: \(id.rawValue)))"
+        }
     }
     
 }

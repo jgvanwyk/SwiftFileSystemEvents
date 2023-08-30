@@ -42,34 +42,33 @@ public final class FileSystemEventStream {
                 latency: TimeInterval = 0,
                 flags: Flags = [],
                 handler: @escaping (FileSystemEvent) -> Void) {
-        var flags = flags
-        flags.insert(.useCFTypes)
         self.handler = handler
-        let pathsToWatch = directoriesToWatch.map { $0.path } as CFArray
+        let pathsToWatch: CFArray
+        if #available(macOS 13.0, *) {
+            pathsToWatch = directoriesToWatch.map { $0.path(percentEncoded: false) } as CFArray
+        } else {
+            pathsToWatch = directoriesToWatch.map { $0.path } as CFArray
+        }
         // We pass an unmanaged pointer to `self` as context info to the stream.
         // `FileSystemEventStream.callback` uses this to call `handler` with each event.
         // As the memory for `self` is managed by Swift, we pass `nil` for both `retain`
         // and `release`.
-        var context = FSEventStreamContext(
-            version: 0,
-            info: Unmanaged.passUnretained(self).toOpaque(),
-            retain: nil,
-            release: nil,
-            copyDescription: nil
-        )
+        var context = FSEventStreamContext(version: 0,
+                                           info: Unmanaged.passUnretained(self).toOpaque(),
+                                           retain: nil,
+                                           release: nil,
+                                           copyDescription: nil)
         // While the return value of `FSEventStreamCreate` is imported in Swift as
         // `FSEventStreamRef?`, the documentation for `FSEventStreamCreate` asserts that
         // its return value will always be a valid `FSEventStreamRef`, so we unwrap the
         // return value here.
-        self.streamRef = FSEventStreamCreate(
-            kCFAllocatorDefault,
-            Self.callback,
-            &context,
-            pathsToWatch,
-            sinceWhen.rawValue,
-            latency,
-            flags.rawValue
-        )!
+        self.streamRef = FSEventStreamCreate(kCFAllocatorDefault,
+                                             Self.callback,
+                                             &context,
+                                             pathsToWatch,
+                                             sinceWhen.rawValue,
+                                             latency,
+                                             flags.rawValue)!
     }
     
     deinit {
@@ -78,10 +77,12 @@ public final class FileSystemEventStream {
     
     private static let callback: FSEventStreamCallback = { _, info, numEvents, eventPaths, eventFlags, eventIDs in
         guard let info = info else { return }
-        let eventPaths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as! [CFString]
+        let eventPaths = eventPaths.assumingMemoryBound(to: UnsafeMutablePointer<CChar>.self)
         let stream = Unmanaged<FileSystemEventStream>.fromOpaque(info).takeUnretainedValue()
         for index in 0..<numEvents {
-            let url = CFURLCreateWithString(nil, eventPaths[index], nil) as URL
+            let url = URL(fileURLWithFileSystemRepresentation: eventPaths[index],
+                          isDirectory: true,
+                          relativeTo: nil)
             let flags = FileSystemEvent.Flags(rawValue: eventFlags[index])
             let id = FileSystemEvent.ID(rawValue: eventIDs[index])
             let event = FileSystemEvent(url: url, id: id, flags: flags)
@@ -105,9 +106,15 @@ public final class FileSystemEventStream {
     /// This calls `FSEventStreamCopyPathsBeingWatched`.
     @available(macOS 10.5, *)
     public var directoriesBeingWatched: [URL] {
-        // `FSEventStreamCopyPathsBeingWatched` returns a `CFArray` of `CFString`.
-        let paths = FSEventStreamCopyPathsBeingWatched(streamRef) as! [CFString]
-        let urls = paths.map { CFURLCreateWithString(nil, $0, nil) as URL }
+        // `FSEventStreamCopyPathsBeingWatched` returns a `CFArray` of `CFStringRef`, which
+        // can always be converted to `[String]`.
+        let paths = FSEventStreamCopyPathsBeingWatched(streamRef) as! [String]
+        let urls: [URL]
+        if #available(macOS 13.0, *) {
+            urls = paths.map { URL(filePath: $0, directoryHint: .isDirectory) }
+        } else {
+            urls = paths.map { URL(fileURLWithPath: $0, isDirectory: true) }
+        }
         return urls
     }
         
@@ -231,7 +238,12 @@ public final class FileSystemEventStream {
     /// This calls `FSEventStreamSetExclusionPaths(_:,_:)`.
     @available(macOS 10.9, *)
     public func setExclusionDirectories(_ directoryURLs: [URL]) throws {
-        let paths = directoryURLs.map { $0.path } as CFArray
+        let paths: CFArray
+        if #available(macOS 13.0, *) {
+            paths = directoryURLs.map { $0.path(percentEncoded: false) } as CFArray
+        } else {
+            paths = directoryURLs.map { $0.path } as CFArray
+        }
         guard FSEventStreamSetExclusionPaths(streamRef, paths) else { throw Error.couldNotExcludeDirectories }
     }
     
@@ -258,7 +270,7 @@ public final class FileSystemEventStream {
         /// This wraps `kFSEventStreamCreateFlagNone`.
         public static let none = Self.init(rawValue: FSEventStreamCreateFlags(kFSEventStreamCreateFlagNone))
         
-        fileprivate static let useCFTypes = Self.init(rawValue: FSEventStreamCreateFlags(kFSEventStreamCreateFlagUseCFTypes))
+        // public static let useCFTypes = Self.init(rawValue: FSEventStreamCreateFlags(kFSEventStreamCreateFlagUseCFTypes))
                 
         /// Change the meaning of the latency parameter.
         ///
