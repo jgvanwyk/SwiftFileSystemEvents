@@ -2,7 +2,7 @@
 //  FileSystemEventStream.swift
 //  SwiftFileSystemEvents
 //
-//  Created by jgvanwwyk on 2023-02-05.
+//  Copyright 2023-2026 Jacques Gideon van Wyk
 //
 
 
@@ -49,14 +49,10 @@ public final class FileSystemEventStream {
         } else {
             pathsToWatch = directoriesToWatch.map { $0.path } as CFArray
         }
-        // We pass an unmanaged pointer to `self` as context info to the stream.
-        // `FileSystemEventStream.callback` uses this to call `handler` with each event.
-        // As the memory for `self` is managed by Swift, we pass `nil` for both `retain`
-        // and `release`.
         var context = FSEventStreamContext(version: 0,
                                            info: Unmanaged.passUnretained(self).toOpaque(),
-                                           retain: nil,
-                                           release: nil,
+                                           retain: Self.retain,
+                                           release: Self.release,
                                            copyDescription: nil)
         // While the return value of `FSEventStreamCreate` is imported in Swift as
         // `FSEventStreamRef?`, the documentation for `FSEventStreamCreate` asserts that
@@ -73,6 +69,17 @@ public final class FileSystemEventStream {
     
     deinit {
         FSEventStreamRelease(streamRef)
+    }
+    
+    private static let retain: CFAllocatorRetainCallBack = { stream in
+        guard let stream = stream else { return nil }
+        _ = Unmanaged<FileSystemEventStream>.fromOpaque(stream).retain()
+        return stream;
+    }
+    
+    private static let release: CFAllocatorReleaseCallBack = { stream in
+        guard let stream = stream else { return }
+        Unmanaged<FileSystemEventStream>.fromOpaque(stream).release()
     }
     
     private static let callback: FSEventStreamCallback = { _, info, numEvents, eventPaths, eventFlags, eventIDs in

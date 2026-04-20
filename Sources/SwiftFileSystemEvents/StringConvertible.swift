@@ -2,8 +2,8 @@
 //  StringConvertible.swift
 //  SwiftFileSystemEvents
 //
-//  Created by jgvanwyk on 2023-02-10.
-//    
+//  Copyright 2023-2026 Jacques Gideon van Wyk
+//
 
 
 import Foundation
